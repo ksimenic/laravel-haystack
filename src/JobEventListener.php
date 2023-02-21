@@ -9,13 +9,12 @@ use Illuminate\Queue\Events\JobFailed;
 use Illuminate\Queue\Events\JobProcessed;
 use Sammyjo20\LaravelHaystack\Models\Haystack;
 use Sammyjo20\LaravelHaystack\Contracts\StackableJob;
+use Sammyjo20\LaravelHaystack\Helpers\SerializationHelper;
 
 class JobEventListener
 {
     /**
      * Static make helper to create class.
-     *
-     * @return static
      */
     public static function make(): static
     {
@@ -24,11 +23,6 @@ class JobEventListener
 
     /**
      * Create the job payload.
-     *
-     * @param $connection
-     * @param $queue
-     * @param $payload
-     * @return array
      */
     public function createPayloadUsing($connection, $queue, $payload): array
     {
@@ -55,9 +49,6 @@ class JobEventListener
 
     /**
      * Handle the "JobProcessed" event.
-     *
-     * @param  JobProcessed  $event
-     * @return void
      */
     public function handleJobProcessed(JobProcessed $event): void
     {
@@ -109,9 +100,6 @@ class JobEventListener
 
     /**
      * Handle the "JobFailed" event.
-     *
-     * @param  JobFailed  $event
-     * @return void
      */
     public function handleFailedJob(JobFailed $event): void
     {
@@ -153,9 +141,6 @@ class JobEventListener
 
     /**
      * Unserialize the job from the job payload.
-     *
-     * @param  array  $payload
-     * @return object|null
      */
     private function unserializeJobFromPayload(array $payload): ?object
     {
@@ -163,14 +148,11 @@ class JobEventListener
             return null;
         }
 
-        return unserialize($payload['data']['command'], ['allowed_classes' => true]);
+        return SerializationHelper::unserialize($payload['data']['command'], ['allowed_classes' => true]);
     }
 
     /**
      * Attempt to find the haystack model from the job payload.
-     *
-     * @param  array  $payload
-     * @return Haystack|null
      */
     private function getHaystackFromPayload(array $payload): ?Haystack
     {
